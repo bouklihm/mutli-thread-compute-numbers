@@ -2,35 +2,48 @@ package com.marou.computenumbers.model;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@Builder
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
 public class DataStatistic {
 
-  private int total;
+  private final int total;
 
-  private double sumXValue;
+  private final double sumXValue;
 
-  private long sumYValue;
+  private final long sumYValue;
 
-  public OutputStats fromEntity(DataStatistic data) {
-    int total = data.getTotal();
-    double sumXValue = data.getSumXValue();
-    double avgXvalue = sumXValue / total;
-    long sumYvalue = data.getSumYValue();
-    double avgYvalue = sumYvalue / (long) total;
+  public double getAvgX() {
+    if (total == 0) {
+      return 0;
+    }
+    return sumXValue / total;
+  }
+
+  public double getAvgY() {
+    if (total == 0) {
+      return 0;
+    }
+    return (sumYValue * 1.0) / total;
+  }
+
+  public DataStatistic plus(double x, int y) {
+    return new DataStatistic(total + 1, sumXValue + x, sumYValue + y);
+  }
+
+  public DataStatistic minus(double x, int y) {
+    return new DataStatistic(total - 1, Math.max(0, sumXValue - x), sumYValue - y);
+  }
+
+  public OutputStats fromEntity() {
 
     String output = String.join(",", List.of(
-        ((Integer) total).toString(),
-        ((Double) sumXValue).toString(),
-        ((Double) avgXvalue).toString(),
-        ((Long) sumYvalue).toString(),
-        ((Double) avgYvalue).toString()));
+        ((Integer) this.total).toString(),
+        ((Double) this.sumXValue).toString(),
+        ((Double) getAvgX()).toString(),
+        ((Long) this.sumYValue).toString(),
+        ((Double) getAvgY()).toString()));
 
     return new OutputStats(output);
   }
