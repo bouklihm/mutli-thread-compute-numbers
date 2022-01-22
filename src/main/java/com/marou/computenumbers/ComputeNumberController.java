@@ -23,7 +23,8 @@ public class ComputeNumberController {
       @RequestBody String payload) {
     //service.publishNumberCollectionEvent(rawData);
     RawData rawData = new RawData(payload);
-    computeNumberService.compute(rawData.toEntity());
+    service.publishNumberCollectionEvent(rawData);
+    //computeNumberService.compute(rawData.toEntity());
 
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
