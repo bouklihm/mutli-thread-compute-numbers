@@ -1,6 +1,7 @@
 package com.marou.computenumbers.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.marou.computenumbers.validation.InputConstrain;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class RawData {
 
   @JsonValue
   @NonNull
+  @InputConstrain
   private String payload;
 
   public InputCollection toEntity() {

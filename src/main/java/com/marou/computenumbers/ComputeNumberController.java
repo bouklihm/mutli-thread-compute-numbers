@@ -1,7 +1,9 @@
 package com.marou.computenumbers;
 
-import com.marou.computenumbers.model.OutputStats;
 import com.marou.computenumbers.model.RawData;
+import com.marou.computenumbers.validation.InputConstrain;
+import com.marou.computenumbers.validation.InputValidator;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,15 @@ public class ComputeNumberController {
 
   private final ComputeNumberService computeNumberService;
 
+  private final InputValidator validator;
+
   @PostMapping(value = "/event")
   public ResponseEntity<?> publishNumberCollection(
-      @RequestBody String payload) {
+      @Valid @RequestBody String payload) {
     //service.publishNumberCollectionEvent(rawData);
+    if(!validator.isValid(payload)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
     RawData rawData = new RawData(payload);
     service.publishNumberCollectionEvent(rawData);
     //computeNumberService.compute(rawData.toEntity());
