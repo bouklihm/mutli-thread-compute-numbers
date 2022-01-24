@@ -1,6 +1,5 @@
 package com.marou.computenumbers;
 
-import static java.lang.Math.abs;
 import static java.time.OffsetDateTime.now;
 
 import com.marou.computenumbers.exception.ExpiredTimestampException;
@@ -23,20 +22,22 @@ public class ComputeNumberService {
 
     final double xValue = input.getXValue();
     final int yValue = input.getYValue();
-    val millisTosixtySeconds = abs(Duration
+
+    val millisToSixtySeconds = Duration
         .between(
             now().toInstant(),
             input.getTimestamp())
-        .toMillis());
+        .abs()
+        .toMillis();
 
-    validateTimestamp(millisTosixtySeconds);
+    validateTimestamp(millisToSixtySeconds);
 
-    computeStats(xValue, yValue, millisTosixtySeconds);
+    computeStats(xValue, yValue, millisToSixtySeconds);
 
     return stats;
   }
 
-  private void computeStats(double xValue, int yValue, long millisTosixtySeconds) {
+  private void computeStats(double xValue, int yValue, long millisToSixtySeconds) {
     stats.plus(xValue, yValue);
 
     new Timer().schedule(
@@ -46,11 +47,11 @@ public class ComputeNumberService {
             stats.minus(xValue, yValue);
           }
         },
-        60_000 - millisTosixtySeconds);
+        60000 - millisToSixtySeconds);
   }
 
-  private void validateTimestamp(long millisTosixtySeconds) {
-    if (millisTosixtySeconds >= 60_000) {
+  private void validateTimestamp(long millisToSixtySeconds) {
+    if (millisToSixtySeconds >= 60_000) {
       throw new ExpiredTimestampException();
     }
   }
