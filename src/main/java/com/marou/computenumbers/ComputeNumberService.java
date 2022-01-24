@@ -1,5 +1,6 @@
 package com.marou.computenumbers;
 
+import static java.lang.Math.abs;
 import static java.time.OffsetDateTime.now;
 
 import com.marou.computenumbers.exception.ExpiredTimestampException;
@@ -15,24 +16,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class ComputeNumberService {
 
-  private ConcurrentStatistic stats = new ConcurrentStatistic();
+  private final ConcurrentStatistic stats = new ConcurrentStatistic();
 
 
-  public void compute(InputCollection input) {
-
-    val millisTosixtySeconds = Duration
-        .between(
-            now().toInstant(),
-            input.getTimestamp())
-        .toMillis();
-
-//    if (millisTosixtySeconds >= 60_000) {
-//      throw new ExpiredTimestampException();
-//    }
+  public ConcurrentStatistic compute(InputCollection input) {
 
     final double xValue = input.getXValue();
     final int yValue = input.getYValue();
+    val millisTosixtySeconds = abs(Duration
+        .between(
+            now().toInstant(),
+            input.getTimestamp())
+        .toMillis());
 
+    validateTimestamp(millisTosixtySeconds);
+
+    computeStats(xValue, yValue, millisTosixtySeconds);
+
+    return stats;
+  }
+
+  private void computeStats(double xValue, int yValue, long millisTosixtySeconds) {
     stats.plus(xValue, yValue);
 
     new Timer().schedule(
@@ -42,8 +46,13 @@ public class ComputeNumberService {
             stats.minus(xValue, yValue);
           }
         },
-        10_000);
-//        60_000 - millisTosixtySeconds);
+        60_000 - millisTosixtySeconds);
+  }
+
+  private void validateTimestamp(long millisTosixtySeconds) {
+    if (millisTosixtySeconds >= 60_000) {
+      throw new ExpiredTimestampException();
+    }
   }
 
   public OutputStats getStatistics() {

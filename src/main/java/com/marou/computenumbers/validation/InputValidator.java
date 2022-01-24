@@ -2,13 +2,12 @@ package com.marou.computenumbers.validation;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import javax.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InputValidator {
+
   public boolean isValid(String input) {
 
     return
@@ -21,7 +20,7 @@ public class InputValidator {
 
   private boolean isInputPresent(String input) {
     if (input.isEmpty()) {
-      throw new ValidationException();
+      throw new ValidationException("input is empty");
     }
     return true;
   }
@@ -29,7 +28,7 @@ public class InputValidator {
   private boolean isInputComplete(String input) {
     String[] splitData = input.split(",");
     if (splitData.length != 3) {
-      throw new ValidationException();
+      throw new ValidationException("Not the right amounts of values expected");
     }
     return true;
   }
@@ -39,8 +38,8 @@ public class InputValidator {
     try {
       Instant.ofEpochMilli(Long.parseLong(splitData[0]));
       return true;
-    } catch (ValidationException e) {
-      return false;
+    } catch (Exception e) {
+      throw new ValidationException("Timestamp value is not valid");
     }
   }
 
@@ -48,14 +47,14 @@ public class InputValidator {
     String[] splitData = input.split(",");
     try {
       Double.parseDouble(splitData[1]);
-    } catch (ValidationException e) {
-      return false;
+    } catch (Exception e) {
+      throw new ValidationException("The X value is not a double");
     }
 
     if (BigDecimal.valueOf(Double.parseDouble(splitData[1])).scale() > 10) {
-      throw new ValidationException();
+      throw new ValidationException("The X value is too big");
     }
-    return false;
+    return true;
   }
 
   private boolean isYValid(String input) {
@@ -63,8 +62,8 @@ public class InputValidator {
     try {
       Integer.parseInt(splitData[2]);
       return true;
-    } catch (ValidationException e) {
-      return false;
+    } catch (Exception e) {
+      throw new ValidationException("The Y value is an Integer");
     }
   }
 
